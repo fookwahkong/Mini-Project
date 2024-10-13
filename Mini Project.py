@@ -72,13 +72,12 @@ def arrangebyGender(records):
 def arrangebyGPA(records):
     
     records.sort(key=lambda d: -d['CGPA'])
-    print(records)
     return records
 
 #test
 record_bySchoolGenderGPA = {}
-record = records[:20]
-record_bySchool = arrangebySchool(record)
+
+record_bySchool = arrangebySchool(records)
 
 for item in record_bySchool.values():
     school = item[0]['School']
@@ -95,22 +94,39 @@ for item in record_bySchool.values():
     if school not in record_bySchoolGenderGPA.keys():   
         record_bySchoolGenderGPA[school] = record_byGenderGPA
 
-# num_groups = 120
-# groups = [[] for _ in range(num_groups)]
 
-# # Step 4: Manually assign students to groups by alternating between subgroups
-# group_index = 0
+num_groups = 120
+groups = [[] for i in range(num_groups)]
 
-# for school in final:
-#     for gender in final[school]:
-#         for student in final[school][gender]:
-#             groups[group_index].append(student)
-#             group_index = (group_index + 1) % num_groups  # Rotate between groups
+# Step 4: Manually assign students to groups by alternating between subgroups
+group_index = 0
 
-# import csv
-# with open('new_records.csv','w', newline='') as f:
-#     writer = csv.writer(f)
-#     writer.writerow(['Tutorial Group', 'Student ID', 'School', 'Name', 'Gender', 'CPGA'])
-#     for line in c:
-#         writer.writerow(line.values())
+for school in record_bySchoolGenderGPA:
+    for gender in record_bySchoolGenderGPA[school]:
+        for student in record_bySchoolGenderGPA[school][gender]:
+            groups[group_index].append(student)
+            group_index = (group_index + 1) % num_groups  # Rotate between groups
+
+
+import csv
+with open('new_records.csv','w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(['Tutorial Group', 'Student ID', 'School', 'Name', 'Gender', 'CPGA'])
+
+    for school in record_bySchoolGenderGPA:
+        for gender in record_bySchoolGenderGPA[school]:
+            for student in record_bySchoolGenderGPA[school][gender]:
+                writer.writerow(student.values())
+        
+with open('groups.csv','w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(['Tutorial Group', 'Student ID', 'School', 'Name', 'Gender', 'CPGA'])
+    group_index = 1
+
+    for group in groups:
+        writer.writerow([f'Group {group_index}'])
+        group_index += 1
+        for student in group:
+            writer.writerow(student.values())
+        
     
