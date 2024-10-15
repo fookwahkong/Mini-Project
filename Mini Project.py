@@ -79,18 +79,16 @@ record_bySchoolGenderGPA = {}
 
 record_bySchool = arrangebySchool(records)
 
-for item in record_bySchool.values():
-    school = item[0]['School']
+for student in record_bySchool.values():
+    school = student[0]['School']
 
-    record_byGender = arrangebyGender(item)
-    gender = record_byGender.keys()
+    record_byGender = arrangebyGender(student)
 
     record_byGenderGPA = {}
     for gender in record_byGender.keys():
  
         record_byGenderGPA[gender] = arrangebyGPA(record_byGender[gender])
         
-
     if school not in record_bySchoolGenderGPA.keys():   
         record_bySchoolGenderGPA[school] = record_byGenderGPA
 
@@ -120,13 +118,21 @@ with open('new_records.csv','w', newline='') as f:
         
 with open('groups.csv','w', newline='') as f:
     writer = csv.writer(f)
-    writer.writerow(['Tutorial Group', 'Student ID', 'School', 'Name', 'Gender', 'CPGA'])
+    writer.writerow(['Group', 'Tutorial Group', 'Student ID', 'School', 'Name', 'Gender', 'CPGA'])
     group_index = 1
 
     for group in groups:
-        writer.writerow([f'Group {group_index}'])
-        group_index += 1
+        
         for student in group:
-            writer.writerow(student.values())
+
+            toWrite = []
+            toWrite.append(group_index)
+
+            for item in student.values():
+                toWrite.append(item)
+            
+            writer.writerow(toWrite)
+
+        group_index += 1
         
     
