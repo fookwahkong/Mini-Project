@@ -40,7 +40,7 @@ for student in records:
 
 with open('new_records.csv','w', newline='') as f:
     
-    f.write('Tutorial Group, Student ID, School, Name, Gender, CGPA\n')
+    f.write('Tutorial Group,Student ID,School,Name,Gender,CGPA\n')
 
     #within the tutorial group, arrange the data based on the student's school
     for tutorialGroup in new_records:
@@ -62,25 +62,5 @@ with open('new_records.csv','w', newline='') as f:
 
 
 
-# import csv
-        
-# with open('groups.csv','w', newline='') as f:
-#     writer = csv.writer(f)
-#     writer.writerow(['Group', 'Tutorial Group', 'Student ID', 'School', 'Name', 'Gender', 'CPGA'])
-#     group_index = 1
 
-#     for group in groups:
-        
-#         for student in group:
-
-#             toWrite = []
-#             toWrite.append(group_index)
-
-#             for item in student.values():
-#                 toWrite.append(item)
-            
-#             writer.writerow(toWrite)
-
-#         group_index += 1
-        
     
