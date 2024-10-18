@@ -4,7 +4,6 @@ with open('new_records.csv','r') as f:
     header = f.readline().strip().split(',')
     file = f.readlines()
 
-    
     record = {}
     studentsinTG = []
 
@@ -25,9 +24,10 @@ with open('new_records.csv','r') as f:
 
         record[TG].append(row)
 
-        if row.keys() != TG:
+        if row['Tutorial Group'] != TG:
             studentsinTG = []
             
+print(record)
 with open('groups.csv','w', newline='') as f:
 
     f.write('Group,Tutorial Group,Student ID,School,Name,Gender,CPGA')
@@ -40,9 +40,18 @@ with open('groups.csv','w', newline='') as f:
         male_students.sort(key=lambda x:x['CGPA'], reverse=True)
         female_students.sort(key=lambda x:x['CGPA'], reverse=True)
 
-        groups = defaultdict(list)
+        groups = {0: [],
+                  1: [],
+                  2: [],
+                  3: [],
+                  4: [],
+                  5: [],
+                  6: [],
+                  7: [],
+                  8: [],
+                  9: []}
 
-        for group_index in range(1,11):
+        for group_index in range(10):
 
             if male_students:
                 groups[group_index].append(male_students.pop(0))
