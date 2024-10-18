@@ -49,3 +49,4 @@ def arrangebyGPA(records):
     records.sort(key=lambda d: -d['CGPA'])
     return records
 
+print('123')
