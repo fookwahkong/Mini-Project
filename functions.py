@@ -5,14 +5,15 @@ def arrangebySchool(records):
 
     Parameter:
     Input: Unsorted list of dictionaries
+
     Output: Lists of dictionaries in a list
-    e.g.output = [
+
+    e.g. schools = [
     'School 1': [{student 1, {student 2}, ...],  
     'School 2': [{student 1}, {student 2}, ...], 
     'School 3': [...], ...] 
     '''
     schools = {}
-    record = []
 
     for student in records:
         school = student['School']
@@ -26,7 +27,14 @@ def arrangebySchool(records):
 
 def arrangebyGender(records):
     '''
-    This function serves the purpose of arranging the list of students sorted by School 
+    This function serves the purpose of arranging the unsorted list of students by Gender
+
+    Parameter:
+    Input: Unsorted list of dictionaries
+    Output: Lists of dictionaries in a list
+
+    e.g. record = {'Male': [{student 1}, {student 2}, ...], 
+                    'Female': [{student 1}, {student 2}, ...]}
     '''
     males = []
     females = []
@@ -45,7 +53,18 @@ def arrangebyGender(records):
     return record 
 
 def arrangebyGPA(records):
-    
-    records.sort(key=lambda d: -d['CGPA'])
-    return records
+    '''
+    This function serves the purpose of arranging the unsorted list of students by Gender
 
+    Parameter:
+    Input: Unsorted list of dictionaries
+    Output: Sorted list of dictionaries
+
+    e.g. records = [{student with highest GPA}, 
+                    {student with second highest GPA}, 
+                    ..., 
+                    {student with lowest GPA}]
+    '''
+
+    records.sort(key=lambda x:x['CGPA'], reverse=True)
+    return records
