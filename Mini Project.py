@@ -1,7 +1,9 @@
 from functions import arrangebyGender, arrangebyGPA, arrangebySchool
 
 '''
-Arrange the "records" file such that the data is stored in dictionaries in a list
+First, let's start off by importing the data in 'records.csv' into Python
+
+We will do so by storing the data in a list of dictionaries
 Within each dictionary, the header (first line in the file) is used for the key and the values are matched accordingly
 
 Example:
@@ -13,44 +15,50 @@ Example:
 
 '''
 with open('records.csv','r') as f:
-    header = f.readline().strip().split(',')
+    header = f.readline().strip().split(',') # extract header of the file and cast it from string to a list of strings 
     file = f.readlines()
 
     records = []
 
     for student in file:
-        student = student.strip().split(',')  # to change str to a list of strings
-        record = {}
+        student = student.strip().split(',')  # to cast string to a list of strings
+        temp = {}
         
         for i in range(len(student)):
-            record[header[i]] = student[i]
+            temp[header[i]] = student[i]
 
-        record['CGPA'] = float(record['CGPA'])
-        records.append(record)
+        temp['CGPA'] = float(temp['CGPA'])
+        records.append(temp)
 
-#arrange the data based on tutorial group
+# Arrange the data based on tutorial group
+
 new_records = {}
 for student in records:
     tutorialGroup = student['Tutorial Group']
+
     if tutorialGroup not in new_records.keys():
         new_records[tutorialGroup] = []
     
     new_records[tutorialGroup].append(student)
 
+# Example: new_records = {'G-1': [{student 1}, {student 2}, ...], 
+#                         'G-2': [{student 1}, ...], 
+#                         'G-3': [{student 1}, ...], ...}
 
+#Write the arranged data into new csv file
 with open('new_records.csv','w', newline='') as f:
     
     f.write('Tutorial Group,Student ID,School,Name,Gender,CGPA\n')
 
-    #within the tutorial group, arrange the data based on the student's school
+    # Within the tutorial group, arrange the data based on the student's school
     for tutorialGroup in new_records:
         studentsinSchool = arrangebySchool(new_records[tutorialGroup])
 
-        #within tutorial and school, arrange the data based on gender
+        # Within tutorial and school, arrange the data based on gender
         for school in studentsinSchool:
             studentsinSchoolGender = arrangebyGender(studentsinSchool[school])
 
-            #within tutorial, school and gender, arrange the data based on GPA
+            # Within tutorial, school and gender, arrange the data based on GPA
             for gender in studentsinSchoolGender:
                 studentsinSchoolGenderGPA = arrangebyGPA(studentsinSchoolGender[gender])
                 for student in studentsinSchoolGenderGPA:

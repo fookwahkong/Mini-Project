@@ -1,13 +1,12 @@
-from collections import defaultdict
+from functions import arrangebyGender, arrangebyGPA
 
 with open('new_records.csv','r') as f:
     header = f.readline().strip().split(',')
-    file = f.readlines()
+    students = f.readlines()
 
     record = {}
-    studentsinTG = []
 
-    for student in file:
+    for student in students:
         student = student.strip().split(',')  # to change str to a list of strings
         row = {}
         
@@ -16,30 +15,32 @@ with open('new_records.csv','r') as f:
         
         row['CGPA'] = float(row['CGPA'])
 
+        # Arrange the data based on Tutorial Group
         TG = row['Tutorial Group']
 
         if TG not in record.keys():
             record[TG] = []
         
-
         record[TG].append(row)
 
-        if row['Tutorial Group'] != TG:
-            studentsinTG = []
-            
-print(record)
+# Example: record = {'G-1': [{student 1}, {student 2},...]
+#                   'G-2': [{student 1}, {student 2},...]}
+
 with open('groups.csv','w', newline='') as f:
 
     f.write('Group,Tutorial Group,Student ID,School,Name,Gender,CPGA')
     f.write('\n')
+
     for tutorialGroup in record:
-
-        male_students = [student for student in record[tutorialGroup] if student['Gender'] == 'Male']
-        female_students = [student for student in record[tutorialGroup] if student['Gender'] == 'Female']
             
-        male_students.sort(key=lambda x:x['CGPA'], reverse=True)
-        female_students.sort(key=lambda x:x['CGPA'], reverse=True)
-
+        male_students = arrangebyGender(record[tutorialGroup])['Male']
+        female_students = arrangebyGender(record[tutorialGroup])['Female']
+        
+        male_students = arrangebyGPA(male_students)
+        female_students = arrangebyGPA(female_students)
+    
+        all_students = arrangebyGPA(male_students + female_students)
+        
         groups = {0: [],
                   1: [],
                   2: [],
@@ -51,32 +52,34 @@ with open('groups.csv','w', newline='') as f:
                   8: [],
                   9: []}
 
-        for group_index in range(10):
+        team_size = 5
 
-            if male_students:
-                groups[group_index].append(male_students.pop(0))
 
-            if female_students:
-                groups[group_index].append(female_students.pop(0))
+        for i in range(team_size):
+            for group_index in range(10):
+                student = all_students.pop(0)             # pop the student with highest/lowest GPA
 
-        all_students = male_students + female_students
-        all_students.sort(key=lambda x:x['CGPA'], reverse=True)
+                groups[group_index].append(student)
+            
+            all_students.reverse()
 
-        for i, student in enumerate(all_students):
-            groups[i % 10].append(student)
-
+        #to write into a output file named 'groups.csv'
         grouped_students = {group_num: group for group_num, group in groups.items()}
-        # prnt(grouped_students)
-
-        
 
         for group_num, group in grouped_students.items():
+            total = 0
             for student in group:
+                total += student['CGPA']
+                average = total / 5
+
                 student['CGPA'] = str(student['CGPA'])
                 f.write(str(group_num))
                 f.write(',')
                 f.write(','.join(student.values()))
                 f.write('\n')
+            
+            f.write(str(round(average,2)))
+            f.write('\n')
 
 
         
