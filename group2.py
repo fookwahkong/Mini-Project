@@ -67,9 +67,9 @@ with open('groups2.csv','w', newline='') as f:
         while (no_students == 0) and (duplicate_schools == 0):
             not_appended = 0 #Count how many times in the for-loop which resulted in nothing happening
             for group_index in range(len(groups)):
+                total_students_before = len(all_students) #Amount of students before appending  process for each group
                 if len(groups[group_index]) != (total_number/len(groups)):
                     for index,students in enumerate(all_students):
-                            total_students_before = len(all_students) #Amount of students before appending  process for each group
                             if (group_gender[group_index]["Male_count"] < float(((total_number/len(groups))/2))) and (group_gender[group_index]["Female_count"] < float(((total_number/len(groups))/2))):
                                 if students['School'] not in [group_student['School'] for group_student in groups[group_index]]: #Check for repeated Schools
                                     if students['Gender'] == 'Male':
@@ -84,24 +84,19 @@ with open('groups2.csv','w', newline='') as f:
                             if (group_gender[group_index]["Male_count"] > float(((total_number/len(groups))/2))):
                                 if (students['School'] not in [group_student['School'] for group_student in groups[group_index]]) and (students['Gender'] == 'Female'):
                                     groups[group_index].append(all_students.pop(index))
+                                    group_gender[group_index]["Female_count"] += 1
                                     break
                                 else:
                                     continue
                             if (group_gender[group_index]["Female_count"] > float(((total_number/len(groups))/2))):
                                 if (students['School'] not in [group_student['School'] for group_student in groups[group_index]]) and (students['Gender'] == 'Male'):
                                     groups[group_index].append(all_students.pop(index))
+                                    group_gender[group_index]["Male_count"] += 1
                                     break
                                 else:
                                     continue
-                            
-                total_students_after = len(all_students)
-                if total_students_after == total_students_before:
-                    not_appended += 1 #Shows how many times out of maximum of 10 times which the for loop skipped everyone (because all that is left are repeated schools)
 
-            for group_index in reversed(range(len(groups))):
-                if len(groups[group_index]) != (total_number/len(groups)):
-                    for index,students in enumerate(all_students):
-                            total_students_before = len(all_students) #Amount of students before appending  process for each group
+                    for index,students in enumerate(reversed(all_students)):
                             if (group_gender[group_index]["Male_count"] < float(((total_number/len(groups))/2))) and (group_gender[group_index]["Female_count"] < float(((total_number/len(groups))/2))):
                                 if students['School'] not in [group_student['School'] for group_student in groups[group_index]]: #Check for repeated Schools
                                     if students['Gender'] == 'Male':
@@ -133,13 +128,15 @@ with open('groups2.csv','w', newline='') as f:
             if len(all_students) == 0: #If run out of students to append
                 no_students += 1
 
-            if not_appended == (2*len(groups)): #If went through a full loop of 10 groups where nothing is appended but have leftover students (means duplicate schools for each group which are not filled)
+            if not_appended == len(groups): #If went through a full loop of 10 groups where nothing is appended but have leftover students (means duplicate schools for each group which are not filled)
                 duplicate_schools += 1
         
         while all_students:
+            a
             for group_index in range(len(groups)): #Appends the rest of the students with duplicate schools into the rest of the groups which are not filled
                     if len(groups[group_index]) != (total_number/len(groups)):
                         groups[group_index].append(all_students.pop(0))
+                        
 
 
         grouped_students = {group_num: group for group_num, group in groups.items()}
