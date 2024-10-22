@@ -30,7 +30,7 @@ with open('groups.csv','w', newline='') as f:
 
     f.write('Group,Tutorial Group,Student ID,School,Name,Gender,CPGA')
     f.write('\n')
-
+    print('a')
     for tutorialGroup in record:
             
         male_students = arrangebyGender(record[tutorialGroup])['Male']
