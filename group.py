@@ -27,7 +27,6 @@ with open('new_records.csv','r') as f:
 #                   'G-2': [{student 1}, {student 2},...]}
 
 with open('groups.csv','w', newline='') as f:
-
     f.write('Group,Tutorial Group,Student ID,School,Name,Gender,CPGA')
     f.write('\n')
 
