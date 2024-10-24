@@ -1,4 +1,4 @@
-from functions import arrangebyGender, arrangebyGPA
+from functions import arrangebyGender, arrangebyGPA, assign_to_groups
 
 with open('new_records.csv','r') as f:
     header = f.readline().strip().split(',')
@@ -32,43 +32,15 @@ with open('groups.csv','w', newline='') as f:
 
     for tutorialGroup in record:
             
-        male_students = arrangebyGender(record[tutorialGroup])['Male']
-        female_students = arrangebyGender(record[tutorialGroup])['Female']
+        groups = assign_to_groups(record[tutorialGroup])
         
-        male_students = arrangebyGPA(male_students)
-        female_students = arrangebyGPA(female_students)
-    
-        all_students = arrangebyGPA(male_students + female_students)
-        
-        groups = {0: [],
-                  1: [],
-                  2: [],
-                  3: [],
-                  4: [],
-                  5: [],
-                  6: [],
-                  7: [],
-                  8: [],
-                  9: []}
-
-        team_size = 5
-
-
-        for i in range(team_size):
-            for group_index in range(10):
-                student = all_students.pop(0)             # pop the student with highest/lowest GPA
-
-                groups[group_index].append(student)
-            
-            all_students.reverse()
-
-        #to write into a output file named 'groups.csv'
+        # to write into a file named 'groups.csv'
         grouped_students = {group_num: group for group_num, group in groups.items()}
 
         for group_num, group in grouped_students.items():
             total = 0
             for student in group:
-                total += student['CGPA']
+                total += float(student['CGPA'])
                 average = total / 5
 
                 student['CGPA'] = str(student['CGPA'])
