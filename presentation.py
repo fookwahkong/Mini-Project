@@ -1,5 +1,5 @@
-import matplotlib as mpl
 import matplotlib.pyplot as plt
+import statistics 
 
 with open('groups.csv','r') as f:
     header = f.readline().strip().split(',')
@@ -11,62 +11,109 @@ with open('groups.csv','r') as f:
         student = student.strip().split(',')
         
         group_idx = student[0] 
-        if group_idx not in groups.keys():
-            groups[group_idx] = [] 
+        tutorialGroup = student[1]
+        if tutorialGroup not in groups.keys():
+            groups[tutorialGroup] = {}
 
-        groups[group_idx].append(student)
+        if group_idx not in groups[tutorialGroup].keys():
+            groups[tutorialGroup][group_idx] = []
+
+
+        groups[tutorialGroup][group_idx].append(student)
+
+#Calculate the average GPA for each group in each tutorialGroup
+tutorialGroup_avgGPA = {}
+
+for tutorialGroup in groups:
+
+    groups_GPA = []
+    for group_index in groups[tutorialGroup]:
         
+        group_totalGPA = 0
 
-#test
-schools_avgNum = {}
-groups_avgGPA = {}
+        for student in groups[tutorialGroup][group_index]:
 
-for group_idx in groups:
+            studentGPA = float(student[6])                            #index 6 is where CGPA is at
+            group_totalGPA += studentGPA
 
-    #initialising variables to find mean GPA for each group
-    no_of_students = 0
-    total = 0
+        group_avgGPA = group_totalGPA / len(groups[tutorialGroup][group_index])
 
-    for student in groups[group_idx]:
+        groups_GPA.append(group_avgGPA) 
 
-        #to find the number of students from each school in a group
-        if student[3] not in schools_avgNum[group_idx].keys():   #index 3 is the postion of school name in the list
-            schools_avgNum[group_idx] = {student[3]:0}
+    tutorialGroup_avgGPA[tutorialGroup] = groups_GPA
 
-        schools_avgNum[group_idx][student[3]] += 1 
-        
+# Using the average GPA of 5 groups in each tutorial group, 
+# Calculate the standard deviation of the averageGPA of each tutorialGroup
 
-        #to find mean GPA for each group
-        GPA = float(student[6])                      #index 6 is the position of GPA in the list
-        no_of_students += 1
-        total += GPA 
+tutorialGroup_dev = {}
+for tutorialGroup in tutorialGroup_avgGPA:
+    deviation = statistics.stdev(tutorialGroup_avgGPA[tutorialGroup])
 
-    averageGPA = round(total / no_of_students, 2)
-    groups_avgGPA[group_idx] = averageGPA
-
-# Plot graph for the number of students from each school in a group
-print(schools_avgNum)
-
-# to find the mean value
-for group_idx in groups:
-    for student in groups[group_idx]:
-        total += float(student[6])
-mean = total / 6000
+    tutorialGroup_dev[tutorialGroup] = deviation
 
 # Plot graph for GPA
-groups_index = list(groups_avgGPA.keys())
-groupAverageGPA = list(groups_avgGPA.values())
-plt.figure(figsize=(200, 10))
-plt.bar(groups_index, groupAverageGPA, color='skyblue')
+tutorialGroups = list(tutorialGroup_dev.keys())
+tutorialGroupDEV = list(tutorialGroup_dev.values())
+plt.figure(figsize=(250, 10))
+plt.bar(tutorialGroups, tutorialGroupDEV, color='skyblue')
 
 # Adding labels and title
-plt.xlabel('Group')
-plt.ylabel('Average GPA')
-plt.title('Average GPA per Group')
+plt.xlabel('Tutorial Group')
+plt.ylabel('Standard Deviation')
+plt.title('STD of GPA per Tutorial Group')
 
-# Adding horizontal average line
-plt.axhline(mean, color='red', linestyle='--')
 
-# Show the plot
-plt.show()
-    
+#plot graph for duplicate schools
+groups_with_duplicate_school = {}
+for tutorialGroup in groups:
+    for group_index in groups[tutorialGroup]:
+        duplicate_school = 0
+
+        for student_index in range(len(groups[tutorialGroup][group_index]) - 1):
+            student = groups[tutorialGroup][group_index][student_index]
+            next_student = groups[tutorialGroup][group_index][student_index + 1]
+
+            #if the group has duplicate school
+            if student[3] == next_student[3]:
+                duplicate_school += 1
+
+
+        if duplicate_school != 0:
+            groups_with_duplicate_school[f'{tutorialGroup}, Group {group_index}'] = duplicate_school + 1
+
+
+# plot graph for duplicate schools
+group_name = list(groups_with_duplicate_school.keys())
+duplicates = list(groups_with_duplicate_school.values())
+plt.figure(figsize=(250, 10))
+plt.bar(group_name, duplicates, color='skyblue')
+
+# Adding labels and title
+plt.xlabel('Tutorial Group')
+plt.ylabel('Number of times school repeated')
+plt.title('Number of schools repeated per group')
+
+
+#plot graph for gender imbalance
+groups_with_gender_imbalance = []
+for tutorialGroup in groups:
+
+    for group_index in groups[tutorialGroup]:
+        male_count = 0
+        female_count = 0
+
+        for student in groups[tutorialGroup][group_index]:
+            if student[5] == 'Male':
+                male_count += 1
+            else:
+                female_count += 1
+        
+        if male_count >= 4 or female_count >= 4:
+            groups_with_gender_imbalance.append(f'{tutorialGroup} Group {group_index}')
+
+
+# print(groups_with_gender_imbalance)
+print(len(groups_with_gender_imbalance))
+
+# print(groups_with_duplicate_school)
+# plt.show()

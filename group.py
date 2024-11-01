@@ -1,4 +1,4 @@
-from functions import arrangebyGender, arrangebyGPA, assign_to_groups
+from functions import assign_to_groups_focus_gender, assign_to_groups_focus_school
 
 with open('new_records.csv','r') as f:
     header = f.readline().strip().split(',')
@@ -29,19 +29,35 @@ with open('new_records.csv','r') as f:
 with open('groups.csv','w', newline='') as f:
     f.write('Group,Tutorial Group,Student ID,School,Name,Gender,CPGA')
     f.write('\n')
+    
+    groups_with_gender_imbalance = 0
 
     for tutorialGroup in record:
-            
-        groups = assign_to_groups(record[tutorialGroup])
         
+        #Count the number of males and females in the tutorialGroup
+        male_count = 0
+        female_count = 0
+
+        for student in record[tutorialGroup]:
+            if student['Gender'] == 'Male':
+                male_count += 1
+            else:
+                female_count += 1
+
+
+        # if male_count >= 31 or female_count >= 31:
+        groups = assign_to_groups_focus_gender(record[tutorialGroup])
+        # groups_with_gender_imbalance += 1
+        # else:
+
+        #     groups = assign_to_groups_focus_school(record[tutorialGroup])
+
         # to write into a file named 'groups.csv'
         grouped_students = {group_num: group for group_num, group in groups.items()}
 
         for group_num, group in grouped_students.items():
-            total = 0
+
             for student in group:
-                total += float(student['CGPA'])
-                average = total / 5
 
                 student['CGPA'] = str(student['CGPA'])
                 f.write(str(group_num))
@@ -49,8 +65,6 @@ with open('groups.csv','w', newline='') as f:
                 f.write(','.join(student.values()))
                 f.write('\n')
             
-            f.write(str(round(average,2)))
-            f.write('\n')
 
-
+print(groups_with_gender_imbalance)
         
