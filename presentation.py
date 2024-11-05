@@ -112,8 +112,7 @@ for tutorialGroup in groups:
             groups_with_gender_imbalance.append(f'{tutorialGroup} Group {group_index}')
 
 
-# print(groups_with_gender_imbalance)
-print(len(groups_with_gender_imbalance))
+
 
 # print(groups_with_duplicate_school)
-# plt.show()
+plt.show()

@@ -30,8 +30,7 @@ with open('groups.csv','w', newline='') as f:
     f.write('Group,Tutorial Group,Student ID,School,Name,Gender,CPGA')
     f.write('\n')
     
-    groups_with_gender_imbalance = 0
-
+ 
     for tutorialGroup in record:
         
         #Count the number of males and females in the tutorialGroup
@@ -45,12 +44,12 @@ with open('groups.csv','w', newline='') as f:
                 female_count += 1
 
 
-        # if male_count >= 31 or female_count >= 31:
-        groups = assign_to_groups_focus_gender(record[tutorialGroup])
-        # groups_with_gender_imbalance += 1
-        # else:
+        if male_count >= 31 or female_count >= 31:
+            groups = assign_to_groups_focus_gender(record[tutorialGroup])
 
-        #     groups = assign_to_groups_focus_school(record[tutorialGroup])
+        else:
+
+            groups = assign_to_groups_focus_school(record[tutorialGroup])
 
         # to write into a file named 'groups.csv'
         grouped_students = {group_num: group for group_num, group in groups.items()}
@@ -65,6 +64,3 @@ with open('groups.csv','w', newline='') as f:
                 f.write(','.join(student.values()))
                 f.write('\n')
             
-
-print(groups_with_gender_imbalance)
-        

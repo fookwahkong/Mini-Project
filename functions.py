@@ -133,11 +133,11 @@ def assign_to_groups_focus_school(students, num_groups=10):
 
     groups = {i: [] for i in range(1, num_groups + 1)} #Makes X number of groups (lists) based on requirement
     
-    group_gender = {i: {"Male_count": 0, "Female_count": 0} for i in range(1, len(groups) + 1)} #Makes X number of lists of Male and Female count dictionaries
+    group_details = {i: {'Gender': {'Male': 0, 'Female': 0}, 'School':[], 'Size': 0} for i in range(1, num_groups + 1)}
 
-    distribute_students_prioritize_school(groups, students, group_gender, group_size)
-    distribute_remaining_students_prioritize_gender(groups, students, group_gender, group_size)
-    distribute_remaining_students(groups, students, group_gender, group_size)
+    distribute_students_prioritize_school(groups, students, group_details, group_size)
+    distribute_remaining_students_prioritize_gender(groups, students, group_details, group_size)
+    distribute_remaining_students(groups, students, group_details, group_size)
 
     return groups
 
@@ -253,55 +253,71 @@ def is_student_valid(student, group_index, group_details, group_size, groups_to_
             
     return False
 
+def is_group_valid(student, group_index, group_details, group_size):
 
-def distribute_students_prioritize_school(groups, all_students, group_gender, group_size):
-    no_students = 0
-    duplicate_schools = 0
     max_amount = group_size // 2
 
-    while (no_students == 0) and (duplicate_schools == 0):
+    # Case 1: if the student is Male, and the group appending already has maximum male students, skip
+
+    if (group_details[group_index]['Gender']['Male'] == max_amount) and (group_details[group_index]['Gender']['Female'] < max_amount):
+        if student['Gender'] == 'Male':
+            return False
+        
+    # Case 2: if the student is Female, and the group appending already has maximum female students, skip
+
+    if (group_details[group_index]['Gender']['Female'] == max_amount) and (group_details[group_index]['Gender']['Male'] < max_amount):
+        if student['Gender'] == 'Female':
+            return False
+    
+    return True
+
+def distribute_students_prioritize_school(groups, all_students, group_details, group_size):
+    duplicate_schools = False
+
+    while all_students and (not duplicate_schools):
+
         not_appended = 0  # Count how many times in the for-loop which resulted in nothing happening/ no appending. If count goes to = len(groups), 
                           # means that nothing can append anymore currently
         for group_index in range(1,len(groups)+1): #Loops through the groups
             total_students_before = len(all_students)  # Amount of students before appending process for each group
             if len(groups[group_index]) < group_size: #If group not filled
                 #Start appending from the top GPA student after sorting GPA in descending order
-                for index, students in enumerate(all_students):
-                    #For team size of 5 as benchmark, check if male count == 2 and female lower than 2, if currently looking at a male student, skip student
-                    if (group_gender[group_index]["Male_count"] == max_amount) and (group_gender[group_index]["Female_count"] < max_amount):
-                        if students['Gender'] == 'Male':
-                            continue
-                    #For team size of 5 as benchmark, check if female count == 2 and male lower than 2, if currently looking at a female student, skip student
-                    if (group_gender[group_index]["Female_count"] == max_amount) and (group_gender[group_index]["Male_count"] < max_amount):
-                        if students['Gender'] == 'Female':
-                            continue
+                for index, student in enumerate(all_students):
+                    
+                    valid = is_group_valid(student, group_index, group_details, group_size)
+
+                    if not valid:
+                        continue
+
                     #Checks for no duplicate schools when either, 1) female and male count both < 2, meaning can append any gender, or 
                                                                 # 2) female and male count both == 2, meaning can append any gender for the 5th member resulting in 3-2 ratio
-                    if students['School'] not in [group_student['School'] for group_student in groups[group_index]]:
-                        if students['Gender'] == 'Male':
-                            group_gender[group_index]["Male_count"] += 1
+                    if student['School'] not in group_details[group_index]['School']:
+                        if student['Gender'] == 'Male':
+                            update_details(group_index, group_details, student)
                         else:
-                            group_gender[group_index]["Female_count"] += 1
+                            update_details(group_index, group_details, student)
                         groups[group_index].append(all_students.pop(index)) #Append and pop student of index
                         break #Break out of for loop because we are done appending one from the top GPA
                     else:
                         continue
+
                 #If reach required teamsize, break out of the loop and go to the next group
                 if len(groups[group_index]) == group_size:
                     continue
+
                 #Continue appending from the bottom GPA student after sorting GPA in descending order with the same appending algorithm as above
-                for index, students in enumerate(reversed(all_students)): #Reverse iteration so we can iterate from the bottom 
-                    if (group_gender[group_index]["Male_count"] == max_amount) and (group_gender[group_index]["Female_count"] < max_amount):
-                        if students['Gender'] == 'Male':
-                            continue
-                    if (group_gender[group_index]["Female_count"] == max_amount) and (group_gender[group_index]["Male_count"] < max_amount):
-                        if students['Gender'] == 'Female':
-                            continue
-                    if students['School'] not in [group_student['School'] for group_student in groups[group_index]]:
-                        if students['Gender'] == 'Male':
-                            group_gender[group_index]["Male_count"] += 1
+                for index, student in enumerate(reversed(all_students)): #Reverse iteration so we can iterate from the bottom 
+                    valid = is_group_valid(student, group_index, group_details, group_size)
+                    
+                    if not valid:
+                        continue
+
+                    if student['School'] not in group_details[group_index]['School']:
+                        if student['Gender'] == 'Male':
+                            update_details(group_index, group_details, student)
                         else:
-                            group_gender[group_index]["Female_count"] += 1
+                            update_details(group_index, group_details, student)
+                            
                         #Calculate the actual index of the student we are currently looking at because (index) and (actual_index) are looking at 2 diff pos in the list
                         actual_index = len(all_students) - 1 - index
                         groups[group_index].append(all_students.pop(actual_index))
@@ -312,62 +328,64 @@ def distribute_students_prioritize_school(groups, all_students, group_gender, gr
             total_students_after = len(all_students)
             if total_students_after == total_students_before:
                 not_appended += 1  # Shows how many times or groups out of len(groups) that there was no appending/ no unqiue schools to append
-        if not_appended == len(groups):  # If all groups skipped students due to duplicate schools
-            duplicate_schools += 1
-        if len(all_students) == 0:  # If run out of students to append
-            no_students += 1
 
-def distribute_remaining_students_prioritize_gender(groups, all_students, group_gender, group_size):
+        if not_appended == len(groups):  # All the groups are skipped because of the potential in duplicate school if appended
+            duplicate_schools = True
+
+def distribute_remaining_students_prioritize_gender(groups, all_students, group_details, group_size):
     #Exact same appending algorithm as (distribute_students_prioritize_school()), just with allowing duplciate schools, but still continue to distribute gender evenly
-    duplicate_schools = 0
-    no_students = 0
-    max_amount = group_size // 2
-    while (no_students == 0) and (duplicate_schools == 0):
+    duplicate_schools = False
+    
+    while all_students and not duplicate_schools:
         not_appended = 0
+
         for group_index in range(1,len(groups)+1):  
             total_students_before = len(all_students)
             if len(groups[group_index]) < group_size:
-                for index, students in enumerate(all_students):
-                    if (group_gender[group_index]["Male_count"] == max_amount) and (group_gender[group_index]["Female_count"] < max_amount):
-                        if students['Gender'] == 'Male':
-                            continue
-                    if (group_gender[group_index]["Female_count"] == max_amount) and (group_gender[group_index]["Male_count"] < max_amount):
-                        if students['Gender'] == 'Female':
-                            continue
-                    if students['Gender'] == 'Male':
-                        group_gender[group_index]["Male_count"] += 1
+                for index, student in enumerate(all_students):
+                    valid = is_group_valid(student, group_index, group_details, group_size)
+
+                    if not valid:
+                        continue
+
+                    if student['Gender'] == 'Male':
+                        update_details(group_index, group_details, student)
                         groups[group_index].append(all_students.pop(index))
                         break
-                    if students['Gender'] == 'Female':
-                        group_gender[group_index]["Female_count"] += 1
+
+                    if student['Gender'] == 'Female':
+                        update_details(group_index, group_details, student)
                         groups[group_index].append(all_students.pop(index))
                         break
+
                 if len(groups[group_index]) == group_size:
                     continue
+
                 for index, students in enumerate(reversed(all_students)):
                     actual_index = len(all_students) - 1 - index
-                    if (group_gender[group_index]["Male_count"] == max_amount) and (group_gender[group_index]["Female_count"] < max_amount):
-                        if students['Gender'] == 'Male':
-                            continue
-                    if (group_gender[group_index]["Female_count"] == max_amount) and (group_gender[group_index]["Male_count"] < max_amount):
-                        if students['Gender'] == 'Female':
-                            continue
+                    
+                    valid = is_group_valid(student,group_index, group_details, group_size)
+                    
+                    if not valid:
+                        continue
+
                     if students['Gender'] == 'Male':
-                        group_gender[group_index]["Male_count"] += 1
+                        update_details(group_index, group_details, student)
                         groups[group_index].append(all_students.pop(actual_index))
                         break
+
                     if students['Gender'] == 'Female':
                         groups[group_index].append(all_students.pop(actual_index))
                         break
+
             total_students_after = len(all_students)
             if total_students_after == total_students_before:
                 not_appended += 1
-        if not_appended == len(groups):
-            duplicate_schools += 1
-        if len(all_students) == 0:  # If run out of students to append
-            no_students += 1
 
-def distribute_remaining_students(groups, all_students, group_gender, group_size):
+        if not_appended == len(groups):
+            duplicate_schools = True
+
+def distribute_remaining_students(groups, all_students, group_details, group_size):
     #Appending algorithm to distribute the rest of the students without distributing school and gender evenly because it has been distributed as well as it could already
     while all_students:
         for group_index in range(1,len(groups)+1):
@@ -375,6 +393,6 @@ def distribute_remaining_students(groups, all_students, group_gender, group_size
             if len(groups[group_index]) < group_size and all_students:
                 student = all_students.pop(0)
                 groups[group_index].append(student)  # Appends and pops the student with the highest GPA out of the remaining students
-                group_gender[group_index][f"{student['Gender']}_count"] += 1
+                update_details(group_index, group_details, student)
             else:
                 continue
