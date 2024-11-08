@@ -95,9 +95,10 @@ plt.title('Number of schools repeated per group')
 
 
 #plot graph for gender imbalance
-groups_with_gender_imbalance = []
+tutorialGroup_gendervalue = {}
 for tutorialGroup in groups:
 
+    group_value = []
     for group_index in groups[tutorialGroup]:
         male_count = 0
         female_count = 0
@@ -108,11 +109,26 @@ for tutorialGroup in groups:
             else:
                 female_count += 1
         
-        if male_count >= 4 or female_count >= 4:
-            groups_with_gender_imbalance.append(f'{tutorialGroup} Group {group_index}')
+        value = abs(male_count - female_count)
+        group_value.append(value)
+
+    if tutorialGroup not in tutorialGroup_gendervalue.keys():
+        tutorialGroup_gendervalue[tutorialGroup] = []
+    
+    tutorialGroup_gendervalue[tutorialGroup] += group_value
+
+tutorialGroup_genderdev = {}
+for tutorialGroup in tutorialGroup_gendervalue:
+
+    deviation = statistics.stdev(tutorialGroup_gendervalue[tutorialGroup])
+
+    tutorialGroup_genderdev[tutorialGroup] = deviation
+    print(tutorialGroup_gendervalue[tutorialGroup], deviation)
+
+tutorialGroups = list(tutorialGroup_genderdev.keys())
+tutorialGroupDEV = list(tutorialGroup_genderdev.values())
+plt.figure(figsize=(250, 10))
+plt.bar(tutorialGroups, tutorialGroupDEV, color='skyblue')
 
 
-
-
-# print(groups_with_duplicate_school)
 plt.show()

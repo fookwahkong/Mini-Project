@@ -375,6 +375,7 @@ def distribute_remaining_students_prioritize_gender(groups, all_students, group_
                         break
 
                     if students['Gender'] == 'Female':
+                        update_details(group_index, group_details, student)
                         groups[group_index].append(all_students.pop(actual_index))
                         break
 
