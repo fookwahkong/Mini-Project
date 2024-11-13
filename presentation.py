@@ -81,7 +81,8 @@ for tutorialGroup in groups:
         if duplicate_school != 0:
             groups_with_duplicate_school[f'{tutorialGroup}, Group {group_index}'] = duplicate_school + 1
 
-
+print(groups_with_duplicate_school)
+print(len(groups_with_duplicate_school))
 # plot graph for duplicate schools
 group_name = list(groups_with_duplicate_school.keys())
 duplicates = list(groups_with_duplicate_school.values())
@@ -123,7 +124,6 @@ for tutorialGroup in tutorialGroup_gendervalue:
     deviation = statistics.stdev(tutorialGroup_gendervalue[tutorialGroup])
 
     tutorialGroup_genderdev[tutorialGroup] = deviation
-    print(tutorialGroup_gendervalue[tutorialGroup], deviation)
 
 tutorialGroups = list(tutorialGroup_genderdev.keys())
 tutorialGroupDEV = list(tutorialGroup_genderdev.values())
@@ -131,4 +131,4 @@ plt.figure(figsize=(250, 10))
 plt.bar(tutorialGroups, tutorialGroupDEV, color='skyblue')
 
 
-plt.show()
+# plt.show()

@@ -51,7 +51,7 @@ with open('groups.csv','w', newline='') as f:
             groups = assign_to_groups_focus_school(record[tutorialGroup])
 
         # to write into a file named 'groups.csv'
-        grouped_students = {group_index: group for group_index, group in groups.items()}
+        grouped_students = {group_index + 1: group for group_index, group in groups.items()}
 
         for group_num, group in grouped_students.items():
 
